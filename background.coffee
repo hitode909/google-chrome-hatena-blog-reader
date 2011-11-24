@@ -13,14 +13,20 @@ updateEntryList = (callback) ->
     url: 'http://blog.hatena.ne.jp/-/antenna(kari)'
     dataType: 'html'
     success: (res) ->
-      tempItems = []
-      $(res).find('ol.antenna li').each ->
+
+      if entryList.length > 0
+        keyTime = entryList[entryList.length - 1].time
+      else
+        keyTime = getLastVisitedEpoch()
+
+      # $.each と Array.reverse を組み合わせたので ごちゃっとしてる 旧→新 の順で見るため
+      $($(res).find('ol.antenna li').get().reverse()).each ->
         entry_titles = $(this).contents().filter(-> this.nodeType == 3 && this.textContent.match(/\S/))
         if entry_titles.length > 0
           entry_title = entry_titles[0].textContent
         else
           entry_title = '■'
-        tempItems.push
+        entry =
           blog_title: $(this).find('a').text()
           entry_title: entry_title
           entry_url:   $(this).find('a').attr('href')
@@ -29,14 +35,9 @@ updateEntryList = (callback) ->
           time: + $(this).find('time').attr('data-epoch')
           time_text: $(this).find('time').text()
 
-      entryList = []
-      lastVisited = getLastVisitedEpoch()
-      for entry in tempItems
-        if entry.time > lastVisited
-          entryList.push(entry)
+        if entry.time > keyTime
+          entryList.push entry
 
-      # to 0 = old, last = new
-      entryList.reverse()
       callback() if callback
 
 chrome.browserAction.setBadgeBackgroundColor({color: [56,136, 218, 255]})

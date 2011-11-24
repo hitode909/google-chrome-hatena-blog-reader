@@ -12,10 +12,14 @@ updateEntryList = function(callback) {
     url: 'http://blog.hatena.ne.jp/-/antenna(kari)',
     dataType: 'html',
     success: function(res) {
-      var entry, lastVisited, tempItems, _i, _len;
-      tempItems = [];
-      $(res).find('ol.antenna li').each(function() {
-        var entry_title, entry_titles;
+      var keyTime;
+      if (entryList.length > 0) {
+        keyTime = entryList[entryList.length - 1].time;
+      } else {
+        keyTime = getLastVisitedEpoch();
+      }
+      $($(res).find('ol.antenna li').get().reverse()).each(function() {
+        var entry, entry_title, entry_titles;
         entry_titles = $(this).contents().filter(function() {
           return this.nodeType === 3 && this.textContent.match(/\S/);
         });
@@ -24,7 +28,7 @@ updateEntryList = function(callback) {
         } else {
           entry_title = '■';
         }
-        return tempItems.push({
+        entry = {
           blog_title: $(this).find('a').text(),
           entry_title: entry_title,
           entry_url: $(this).find('a').attr('href'),
@@ -32,17 +36,11 @@ updateEntryList = function(callback) {
           user_name: $(this).attr('data-author'),
           time: +$(this).find('time').attr('data-epoch'),
           time_text: $(this).find('time').text()
-        });
-      });
-      entryList = [];
-      lastVisited = getLastVisitedEpoch();
-      for (_i = 0, _len = tempItems.length; _i < _len; _i++) {
-        entry = tempItems[_i];
-        if (entry.time > lastVisited) {
-          entryList.push(entry);
+        };
+        if (entry.time > keyTime) {
+          return entryList.push(entry);
         }
-      }
-      entryList.reverse();
+      });
       if (callback) {
         return callback();
       }
