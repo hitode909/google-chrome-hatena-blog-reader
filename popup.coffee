@@ -39,6 +39,27 @@ showEntry = (entry, unread_count) ->
   $('#time_text').text(entry.time_text)
   $('#unread_count').text(unread_count)
 
+  $('#follow_button a').text("...")
+
+  chrome.extension.sendRequest
+    method: "getBlogInfo"
+    url: entry.entry_url
+    , (res) ->
+      isLoggedIn = res.isLoggedIn
+      isSubscribing = res.isSubscribing
+      count = res.count
+
+      if isLoggedIn
+        label = "購読"
+        label += "済" if isSubscribing
+        label += " (#{count} users)" if count
+      else
+        label = "LivedoorReaderで購読"
+        $('#follow_button a').addClass 'not_logged_in'
+
+      $('#follow_button a').text label
+
+
 hideButton = ->
   $('#next-button').hide()
 
@@ -70,6 +91,18 @@ $ ->
     window.close()
 
   $('#follow_button a').live 'click', ->
+    $('#follow_button a').css
+      opacity: 0.5
     chrome.tabs.getSelected null, (tab) ->
-      chrome.tabs.create
-        url: "http://reader.livedoor.com/subscribe/?url=#{tab.url}"
+      if $('#follow_button a.not_logged_in').length > 0
+        chrome.tabs.create
+          url: "http://reader.livedoor.com/subscribe/?url=#{encodeURIComponent(tab.url)}"
+        window.close()
+        return
+
+      chrome.extension.sendRequest
+        method: "subscribeBlog"
+        url: tab.url
+      , (res) ->
+        $('#follow_button a').css
+          opacity: 1.0

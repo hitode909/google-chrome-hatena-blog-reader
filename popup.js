@@ -56,7 +56,30 @@ showEntry = function(entry, unread_count) {
     href: "http://www.hatena.ne.jp/" + entry.user_name + "/"
   }).text(entry.user_name));
   $('#time_text').text(entry.time_text);
-  return $('#unread_count').text(unread_count);
+  $('#unread_count').text(unread_count);
+  $('#follow_button a').text("...");
+  return chrome.extension.sendRequest({
+    method: "getBlogInfo",
+    url: entry.entry_url
+  }, function(res) {
+    var count, isLoggedIn, isSubscribing, label;
+    isLoggedIn = res.isLoggedIn;
+    isSubscribing = res.isSubscribing;
+    count = res.count;
+    if (isLoggedIn) {
+      label = "購読";
+      if (isSubscribing) {
+        label += "済";
+      }
+      if (count) {
+        label += " (" + count + " users)";
+      }
+    } else {
+      label = "LivedoorReaderで購読";
+      $('#follow_button a').addClass('not_logged_in');
+    }
+    return $('#follow_button a').text(label);
+  });
 };
 hideButton = function() {
   return $('#next-button').hide();
@@ -93,9 +116,24 @@ $(function() {
     return window.close();
   });
   return $('#follow_button a').live('click', function() {
+    $('#follow_button a').css({
+      opacity: 0.5
+    });
     return chrome.tabs.getSelected(null, function(tab) {
-      return chrome.tabs.create({
-        url: "http://reader.livedoor.com/subscribe/?url=" + tab.url
+      if ($('#follow_button a.not_logged_in').length > 0) {
+        chrome.tabs.create({
+          url: "http://reader.livedoor.com/subscribe/?url=" + (encodeURIComponent(tab.url))
+        });
+        window.close();
+        return;
+      }
+      return chrome.extension.sendRequest({
+        method: "subscribeBlog",
+        url: tab.url
+      }, function(res) {
+        return $('#follow_button a').css({
+          opacity: 1.0
+        });
       });
     });
   });

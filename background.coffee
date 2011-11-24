@@ -51,16 +51,7 @@ checkNewBlogs = ->
   updateEntryList ->
     updateBadge()
 
-setInterval ->
-  checkNewBlogs()
-, INTERVAL
-
-checkNewBlogs()
-
-
-chrome.extension.onRequest.addListener (request, sender, sendResponse) ->
-  return if request.method != "getNextEntry"
-
+getNextEntry = (request, sender, sendResponse) ->
   if entryList.length > 0
     entry = entryList.shift()
     len = entryList.length
@@ -74,3 +65,61 @@ chrome.extension.onRequest.addListener (request, sender, sendResponse) ->
     sendResponse
       entry: null
       unread_count: 0
+
+subscribeBlog = (request, sender, sendResponse) ->
+  $.ajax
+    url: "http://reader.livedoor.com/subscribe/?url=#{encodeURIComponent(request.url)}"
+    dataType: 'html'
+    success: (res) ->
+      form = $(res).find('form[action="/subscribe/"]')
+
+      if form.length == 0
+        sendResponse
+          status: 'ng'
+
+      $.ajax
+        dataType: 'html'
+        type: 'POST'
+        url: "http://reader.livedoor.com/subscribe/"
+        data: form.serialize()
+        success: ->
+          sendResponse
+            status: 'ok'
+        error: ->
+          sendResponse
+            status: 'ng'
+
+getBlogInfo = (request, sender, sendResponse) ->
+  $.ajax
+    url: "http://reader.livedoor.com/subscribe/?url=#{encodeURIComponent(request.url)}"
+    dataType: 'html'
+    success: (res) ->
+      doc = $(res)
+      isLoggedIn = doc.find('form[action="/login/index"]').length == 0
+      isSubscribing = doc.find('form[action="/subscribe/"]').length == 0
+      count = parseInt(doc.find('.subscriber_count a').text()) || 0
+
+      sendResponse
+        isLoggedIn: isLoggedIn
+        isSubscribing: isSubscribing
+        count: count
+
+
+# ---------------------
+
+setInterval ->
+  checkNewBlogs()
+, INTERVAL
+
+checkNewBlogs()
+
+chrome.extension.onRequest.addListener (request, sender, sendResponse) ->
+
+  if request.method == "getNextEntry"
+    getNextEntry request, sender, sendResponse
+
+  if request.method == "subscribeBlog"
+    subscribeBlog request, sender, sendResponse
+
+  if request.method == "getBlogInfo"
+    getBlogInfo request, sender, sendResponse

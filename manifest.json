@@ -1,6 +1,6 @@
 {
     "name": "はてなブログ新着",
-    "version": "1.0",
+    "version": "1.2",
     "description": "はてなブログの新着日記をを効率良く読むためのツールです",
     "permissions" : [
         "contextMenus",

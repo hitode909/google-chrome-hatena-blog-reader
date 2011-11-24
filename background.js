@@ -1,4 +1,4 @@
-var INTERVAL, checkNewBlogs, entryList, getLastVisitedEpoch, setLastVisitedEpoch, updateBadge, updateEntryList;
+var INTERVAL, checkNewBlogs, entryList, getBlogInfo, getLastVisitedEpoch, getNextEntry, setLastVisitedEpoch, subscribeBlog, updateBadge, updateEntryList;
 INTERVAL = 1000 * 30;
 entryList = [];
 getLastVisitedEpoch = function() {
@@ -62,15 +62,8 @@ checkNewBlogs = function() {
     return updateBadge();
   });
 };
-setInterval(function() {
-  return checkNewBlogs();
-}, INTERVAL);
-checkNewBlogs();
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+getNextEntry = function(request, sender, sendResponse) {
   var entry, len;
-  if (request.method !== "getNextEntry") {
-    return;
-  }
   if (entryList.length > 0) {
     entry = entryList.shift();
     len = entryList.length;
@@ -85,5 +78,69 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
       entry: null,
       unread_count: 0
     });
+  }
+};
+subscribeBlog = function(request, sender, sendResponse) {
+  return $.ajax({
+    url: "http://reader.livedoor.com/subscribe/?url=" + (encodeURIComponent(request.url)),
+    dataType: 'html',
+    success: function(res) {
+      var form;
+      form = $(res).find('form[action="/subscribe/"]');
+      if (form.length === 0) {
+        sendResponse({
+          status: 'ng'
+        });
+      }
+      return $.ajax({
+        dataType: 'html',
+        type: 'POST',
+        url: "http://reader.livedoor.com/subscribe/",
+        data: form.serialize(),
+        success: function() {
+          return sendResponse({
+            status: 'ok'
+          });
+        },
+        error: function() {
+          return sendResponse({
+            status: 'ng'
+          });
+        }
+      });
+    }
+  });
+};
+getBlogInfo = function(request, sender, sendResponse) {
+  return $.ajax({
+    url: "http://reader.livedoor.com/subscribe/?url=" + (encodeURIComponent(request.url)),
+    dataType: 'html',
+    success: function(res) {
+      var count, doc, isLoggedIn, isSubscribing;
+      doc = $(res);
+      isLoggedIn = doc.find('form[action="/login/index"]').length === 0;
+      isSubscribing = doc.find('form[action="/subscribe/"]').length === 0;
+      count = parseInt(doc.find('.subscriber_count a').text()) || 0;
+      return sendResponse({
+        isLoggedIn: isLoggedIn,
+        isSubscribing: isSubscribing,
+        count: count
+      });
+    }
+  });
+};
+setInterval(function() {
+  return checkNewBlogs();
+}, INTERVAL);
+checkNewBlogs();
+chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+  if (request.method === "getNextEntry") {
+    getNextEntry(request, sender, sendResponse);
+  }
+  if (request.method === "subscribeBlog") {
+    subscribeBlog(request, sender, sendResponse);
+  }
+  if (request.method === "getBlogInfo") {
+    return getBlogInfo(request, sender, sendResponse);
   }
 });
