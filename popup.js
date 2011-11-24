@@ -131,6 +131,7 @@ $(function() {
         method: "subscribeBlog",
         url: tab.url
       }, function(res) {
+        $('#follow_button a').text('購読しました');
         return $('#follow_button a').css({
           opacity: 1.0
         });

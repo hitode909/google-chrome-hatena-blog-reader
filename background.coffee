@@ -96,7 +96,7 @@ getBlogInfo = (request, sender, sendResponse) ->
     success: (res) ->
       doc = $(res)
       isLoggedIn = doc.find('form[action="/login/index"]').length == 0
-      isSubscribing = doc.find('form[action="/subscribe/"]').length == 0
+      isSubscribing = doc.find('.subscribed').length > 0
       count = parseInt(doc.find('.subscriber_count a').text()) || 0
 
       sendResponse
