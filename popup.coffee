@@ -68,3 +68,8 @@ $ ->
     chrome.tabs.create
       url: $(this).attr('href')
     window.close()
+
+  $('#follow_button a').live 'click', ->
+    chrome.tabs.getSelected null, (tab) ->
+      chrome.tabs.create
+        url: "http://reader.livedoor.com/subscribe/?url=#{tab.url}"

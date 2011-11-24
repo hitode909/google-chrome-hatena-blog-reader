@@ -86,10 +86,17 @@ $(function() {
     showNextEntry();
     return false;
   });
-  return $('#user_name a').live('click', function() {
+  $('#user_name a').live('click', function() {
     chrome.tabs.create({
       url: $(this).attr('href')
     });
     return window.close();
+  });
+  return $('#follow_button a').live('click', function() {
+    return chrome.tabs.getSelected(null, function(tab) {
+      return chrome.tabs.create({
+        url: "http://reader.livedoor.com/subscribe/?url=" + tab.url
+      });
+    });
   });
 });
