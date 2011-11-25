@@ -107,3 +107,5 @@ $ ->
         $('#follow_button a').text '購読しました'
         $('#follow_button a').css
           opacity: 1.0
+
+    false

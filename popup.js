@@ -119,7 +119,7 @@ $(function() {
     $('#follow_button a').css({
       opacity: 0.5
     });
-    return chrome.tabs.getSelected(null, function(tab) {
+    chrome.tabs.getSelected(null, function(tab) {
       if ($('#follow_button a.not_logged_in').length > 0) {
         chrome.tabs.create({
           url: "http://reader.livedoor.com/subscribe/?url=" + (encodeURIComponent(tab.url))
@@ -137,5 +137,6 @@ $(function() {
         });
       });
     });
+    return false;
   });
 });
