@@ -1,13 +1,10 @@
 {
     "name": "はてなブログ新着",
     "version": "1.0",
-    "description": "はてなブログの新着日記をを効率良く読むためのツールです",
+    "description": "購読中のはてなブログを読むための拡張です",
     "permissions" : [
-        "contextMenus",
         "tabs",
-        "cookies",
-        "http://*/*",
-        "https://*/*"
+        "http://blog.hatena.ne.jp/"
     ],
     "icons": {
         "16": "icon16.png",
