@@ -10,7 +10,7 @@ setLastVisitedEpoch = (epoch) ->
 
 updateEntryList = (callback) ->
   $.ajax
-    url: 'http://blog.hatena.ne.jp/-/antenna(kari)'
+    url: 'http://blog.hatena.ne.jp/-/antenna'
     dataType: 'html'
     success: (res) ->
 

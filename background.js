@@ -9,7 +9,7 @@ setLastVisitedEpoch = function(epoch) {
 };
 updateEntryList = function(callback) {
   return $.ajax({
-    url: 'http://blog.hatena.ne.jp/-/antenna(kari)',
+    url: 'http://blog.hatena.ne.jp/-/antenna',
     dataType: 'html',
     success: function(res) {
       var keyTime;
