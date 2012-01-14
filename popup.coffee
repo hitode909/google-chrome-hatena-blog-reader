@@ -68,3 +68,5 @@ $ ->
     chrome.tabs.create
       url: $(this).attr('href')
     window.close()
+
+  $('#next-button').focus()

@@ -86,10 +86,11 @@ $(function() {
     showNextEntry();
     return false;
   });
-  return $('#user_name a').live('click', function() {
+  $('#user_name a').live('click', function() {
     chrome.tabs.create({
       url: $(this).attr('href')
     });
     return window.close();
   });
+  return $('#next-button').focus();
 });
