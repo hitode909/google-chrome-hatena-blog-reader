@@ -1,4 +1,4 @@
-INTERVAL = 1000 * 30
+INTERVAL = 1000 * 600
 
 entryList = []
 

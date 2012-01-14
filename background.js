@@ -1,5 +1,5 @@
 var INTERVAL, checkNewBlogs, entryList, getLastVisitedEpoch, setLastVisitedEpoch, updateBadge, updateEntryList;
-INTERVAL = 1000 * 30;
+INTERVAL = 1000 * 600;
 entryList = [];
 getLastVisitedEpoch = function() {
   return +localStorage['lastVisited'] || 0;
