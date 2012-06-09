@@ -1,12 +1,17 @@
 var INTERVAL, checkNewBlogs, entryList, getLastVisitedEpoch, setLastVisitedEpoch, updateBadge, updateEntryList;
+
 INTERVAL = 1000 * 600;
+
 entryList = [];
+
 getLastVisitedEpoch = function() {
   return +localStorage['lastVisited'] || 0;
 };
+
 setLastVisitedEpoch = function(epoch) {
   return localStorage['lastVisited'] = epoch;
 };
+
 updateEntryList = function(callback) {
   return $.ajax({
     url: 'http://blog.hatena.ne.jp/-/antenna',
@@ -18,7 +23,7 @@ updateEntryList = function(callback) {
       } else {
         keyTime = getLastVisitedEpoch();
       }
-      $($(res).find('ol.antenna li').get().reverse()).each(function() {
+      $($(res).find('ul.entry-list li').get().reverse()).each(function() {
         var entry, entry_title, entry_titles;
         entry_titles = $(this).contents().filter(function() {
           return this.nodeType === 3 && this.textContent.match(/\S/);
@@ -37,19 +42,17 @@ updateEntryList = function(callback) {
           time: +$(this).find('time').attr('data-epoch'),
           time_text: $(this).find('time').text()
         };
-        if (entry.time > keyTime) {
-          return entryList.push(entry);
-        }
+        if (entry.time > keyTime) return entryList.push(entry);
       });
-      if (callback) {
-        return callback();
-      }
+      if (callback) return callback();
     }
   });
 };
+
 chrome.browserAction.setBadgeBackgroundColor({
   color: [56, 136, 218, 255]
 });
+
 updateBadge = function() {
   var label;
   label = entryList.length > 0 ? String(entryList.length) : "";
@@ -57,20 +60,22 @@ updateBadge = function() {
     text: label
   });
 };
+
 checkNewBlogs = function() {
   return updateEntryList(function() {
     return updateBadge();
   });
 };
+
 setInterval(function() {
   return checkNewBlogs();
 }, INTERVAL);
+
 checkNewBlogs();
+
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
   var entry, len;
-  if (request.method !== "getNextEntry") {
-    return;
-  }
+  if (request.method !== "getNextEntry") return;
   if (entryList.length > 0) {
     entry = entryList.shift();
     len = entryList.length;
