@@ -1,6 +1,6 @@
 {
     "name": "はてなブログ新着",
-    "version": "1.0",
+    "version": "1.1",
     "description": "購読中のはてなブログを読むための拡張です",
     "permissions" : [
         "tabs",
