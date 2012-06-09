@@ -20,7 +20,7 @@ updateEntryList = (callback) ->
         keyTime = getLastVisitedEpoch()
 
       # $.each と Array.reverse を組み合わせたので ごちゃっとしてる 旧→新 の順で見るため
-      $($(res).find('ol.antenna li').get().reverse()).each ->
+      $($(res).find('ul.entry-list li').get().reverse()).each ->
         entry_titles = $(this).contents().filter(-> this.nodeType == 3 && this.textContent.match(/\S/))
         if entry_titles.length > 0
           entry_title = entry_titles[0].textContent
