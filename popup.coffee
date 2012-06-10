@@ -1,31 +1,3 @@
-entryList = []
-
-getAntenna = (callback) ->
-  $.ajax
-    url: 'http://blog.hatena.ne.jp/-/antenna(kari)'
-    dataType: 'html'
-    success: (res) ->
-      $('#indicator').hide()
-      items = []
-      $(res).find('ol.antenna li').each ->
-        entry_titles = $(this).contents().filter(-> this.nodeType == 3 && this.textContent.match(/\S/))
-        if entry_titles.length > 0
-          entry_title = entry_titles[0].textContent
-        else
-          entry_title = '■'
-        items.push
-          blog_title: $(this).find('a').text()
-          entry_title: entry_title
-          entry_url:   $(this).find('a').attr('href')
-          user_image: $(this).find('img').attr('src')
-          user_name: $(this).attr('data-author')
-          time: $(this).find('time').attr('data-epoch')
-          time_text: $(this).find('time').text()
-      callback items.reverse()
-
-getUnreadCount = ->
-  entryList.length
-
 openEntry = (entry) ->
   chrome.tabs.getSelected null, (tab) ->
     return if tab.url == entry.entry_url

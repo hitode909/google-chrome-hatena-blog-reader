@@ -1,40 +1,4 @@
-var entryList, getAntenna, getUnreadCount, hideButton, openEntry, showEmptyMessage, showEntry, showNextEntry;
-entryList = [];
-getAntenna = function(callback) {
-  return $.ajax({
-    url: 'http://blog.hatena.ne.jp/-/antenna(kari)',
-    dataType: 'html',
-    success: function(res) {
-      var items;
-      $('#indicator').hide();
-      items = [];
-      $(res).find('ol.antenna li').each(function() {
-        var entry_title, entry_titles;
-        entry_titles = $(this).contents().filter(function() {
-          return this.nodeType === 3 && this.textContent.match(/\S/);
-        });
-        if (entry_titles.length > 0) {
-          entry_title = entry_titles[0].textContent;
-        } else {
-          entry_title = '■';
-        }
-        return items.push({
-          blog_title: $(this).find('a').text(),
-          entry_title: entry_title,
-          entry_url: $(this).find('a').attr('href'),
-          user_image: $(this).find('img').attr('src'),
-          user_name: $(this).attr('data-author'),
-          time: $(this).find('time').attr('data-epoch'),
-          time_text: $(this).find('time').text()
-        });
-      });
-      return callback(items.reverse());
-    }
-  });
-};
-getUnreadCount = function() {
-  return entryList.length;
-};
+var hideButton, openEntry, showEmptyMessage, showEntry, showNextEntry;
 openEntry = function(entry) {
   return chrome.tabs.getSelected(null, function(tab) {
     if (tab.url === entry.entry_url) {
